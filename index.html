@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SubSync — Subtitle & Video Manager</title>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- ─── HEADER ─── -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">⌂</div>
+    <div class="logo-text">Sub<span>Sync</span></div>
+  </div>
+  <div class="header-controls">
+    <div class="enc-dot" title="Encoding engine active"></div>
+    <span style="font-size:11px;color:var(--text-dim);">encoding:</span>
+    <select class="select-styled" id="encodingSelect">
+      <option value="utf-8">UTF-8</option>
+      <option value="windows-1256" selected>Windows-1256 (Arabic/Persian)</option>
+      <option value="iso-8859-1">ISO-8859-1 (Latin)</option>
+      <option value="windows-1252">Windows-1252 (Western)</option>
+      <option value="utf-16le">UTF-16 LE</option>
+    </select>
+    <div class="divider"></div>
+    <button class="btn btn-ghost btn-sm" onclick="clearAll()">✕ Clear All</button>
+  </div>
+</header>
+
+<!-- ─── TOOLBAR ─── -->
+<div class="toolbar">
+  <div class="toolbar-group">
+    <span class="toolbar-label">Add Files</span>
+    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('videoInput').click()">
+      ▶ Videos
+    </button>
+    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('subInput').click()">
+      ◉ Subtitles
+    </button>
+    <input type="file" id="videoInput" multiple accept="video/*" onchange="handleVideoFiles(this.files)">
+    <input type="file" id="subInput" multiple accept=".srt,.ass,.ssa,.vtt,.sub,.idx" onchange="handleSubFiles(this.files)">
+  </div>
+  <div class="toolbar-group">
+    <span class="toolbar-label">Match</span>
+    <button class="btn btn-primary btn-sm" onclick="matchByEpisode()">
+      ⟷ Match by Episode
+    </button>
+    <button class="btn btn-ghost btn-sm" onclick="matchAlphabetical()">
+      ⟷ Match Alphabetical
+    </button>
+    <button class="btn btn-ghost btn-sm" onclick="clearMatches()">
+      ✕ Clear Matches
+    </button>
+  </div>
+  <div class="toolbar-group">
+    <span class="toolbar-label">Export</span>
+    <button class="btn btn-success btn-sm" onclick="downloadZip()">
+      ⬇ Download ZIP
+    </button>
+    <button class="btn btn-ghost btn-sm" onclick="downloadSequential()">
+      ⬇ Sequential DL
+    </button>
+    <button class="btn btn-accent btn-sm" onclick="downloadBatScript()">
+      ⊞ .bat Rename Script
+    </button>
+  </div>
+</div>
+
+<!-- ─── MAIN TWO-COLUMN ─── -->
+<div class="main">
+  <!-- LEFT: Videos -->
+  <div class="column">
+    <div class="col-header">
+      <div class="col-title">
+        ▶ Video Files
+        <span class="col-count" id="videoCount">0</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="sortColumn('video')">↕ Sort</button>
+    </div>
+    <div class="drop-zone" id="videoDrop"
+         ondragover="dragOver(event,'video')" ondragleave="dragLeave(event,'video')" ondrop="dropFiles(event,'video')">
+      <div class="empty-state" id="videoEmpty">
+        <div class="empty-icon">▶</div>
+        <div class="empty-title">Drop video files here</div>
+        <div class="empty-sub">Supports mp4, mkv, avi, mov, and any video format</div>
+      </div>
+      <div class="file-list" id="videoList"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Subtitles -->
+  <div class="column">
+    <div class="col-header">
+      <div class="col-title">
+        ◉ Subtitle Files
+        <span class="col-count" id="subCount">0</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="sortColumn('sub')">↕ Sort</button>
+    </div>
+    <div class="drop-zone" id="subDrop"
+         ondragover="dragOver(event,'sub')" ondragleave="dragLeave(event,'sub')" ondrop="dropFiles(event,'sub')">
+      <div class="empty-state" id="subEmpty">
+        <div class="empty-icon">◉</div>
+        <div class="empty-title">Drop subtitle files here</div>
+        <div class="empty-sub">Supports .srt, .ass, .ssa, .vtt — encoding will be auto-fixed</div>
+      </div>
+      <div class="file-list" id="subList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── BOTTOM BAR ─── -->
+<div class="bottom-bar">
+  <div class="bottom-left">
+    <div class="status-text" id="statusText">Ready. Drop files to begin.</div>
+  </div>
+  <div class="bottom-right">
+    <span style="font-size:11px;color:var(--text-dim);">matched:</span>
+    <span style="font-size:12px;color:var(--green);font-weight:500;" id="matchCount">0 / 0</span>
+  </div>
+</div>
+
+<!-- ─── MATCH PREVIEW MODAL ─── -->
+<div class="modal-overlay hidden" id="matchModal">
+  <div class="modal">
+    <div class="modal-title">
+      ⟷ Match Preview
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;" id="matchModalInfo"></div>
+    <div class="match-preview-list" id="matchPreviewList"></div>
+    <div style="display:flex;gap:8px;margin-top:12px;">
+      <button class="btn btn-primary" onclick="applyMatches()">✓ Apply Matches</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TOAST CONTAINER ─── -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
